@@ -1,72 +1,80 @@
 import "./detail.css";
 
-
-const Detail = ()=>{
-    return (
-        <div className="detail">
-            <div className="user">
-                <img src="./avatar.png" alt="" />
-                <p>Ifeanyi</p>
-                <p>God is faithful all the time...</p>
-            </div>
-            <div className="info">
-                <div className="option">
-                    <div className="title">
-                        <span>Chat settings..</span>
-                        <img src="./arrowUp.png" alt="" />
-                    </div>
-                </div>
-                <div className="option">
-                    <div className="title">
-                        <span>Privacy & help</span>
-                        <img src="./arrowUp.png" alt="" />
-                    </div>
-                    <div className="photos">
-                        <div className="photoItems">
-                            <div className="photoDetail">
-                            <img src="https://images.unsplash.com/photo-1570129477492-45c003edd2be?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwzNjUyOXwwfDF8c2VhcmNofDJ8fGJlYXV0aWZ1bCUyMGhvdXNlfGVufDB8fHx8MTY0MzYwNzA2MQ&ixlib=rb-1.2.1&q=80&w=1080"alt="" />
-                            <span>photo_24..png</span>
-                            </div>
-                            <img src="./download.png" alt="" />
-                        </div>
-                        <div className="photoItems">
-                            <div className="photoDetail">
-                            <img src="https://images.unsplash.com/photo-1570129477492-45c003edd2be?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwzNjUyOXwwfDF8c2VhcmNofDJ8fGJlYXV0aWZ1bCUyMGhvdXNlfGVufDB8fHx8MTY0MzYwNzA2MQ&ixlib=rb-1.2.1&q=80&w=1080"alt="" />
-                            <span>photo_24..png</span>
-                            </div>
-                            <img src="./download.png" alt="" />
-                        </div>
-                        <div className="photoItems">
-                            <div className="photoDetail">
-                            <img src="https://images.unsplash.com/photo-1570129477492-45c003edd2be?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwzNjUyOXwwfDF8c2VhcmNofDJ8fGJlYXV0aWZ1bCUyMGhvdXNlfGVufDB8fHx8MTY0MzYwNzA2MQ&ixlib=rb-1.2.1&q=80&w=1080"alt="" />
-                            <span>photo_24..png</span>
-                            </div>
-                            <img src="./download.png" alt="" />
-                        </div>
-                        <div className="photoItems">
-                            <div className="photoDetail">
-                            <img src="https://images.unsplash.com/photo-1570129477492-45c003edd2be?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwzNjUyOXwwfDF8c2VhcmNofDJ8fGJlYXV0aWZ1bCUyMGhvdXNlfGVufDB8fHx8MTY0MzYwNzA2MQ&ixlib=rb-1.2.1&q=80&w=1080"alt="" />
-                            <span>photo_24..png</span>
-                            </div>
-                            <img src="./download.png" alt="" />
-                        </div>
-                    </div>
-                </div>
-                <div className="option">
-                    <div className="title">
-                        <span>Shared photos</span>
-                        <img src="./arrowDown.png" alt="" />
-                    </div>
-                </div>
-                <div className="option">
-                    <div className="title">
-                        <span>Shared Files</span>
-                        <img src="./arrowUp.png" alt="" />
-                    </div>
-                </div>
-                <button>Block User</button>
-            </div>
+const Detail = () => {
+  return (
+    <div className="detail">
+      <div className="user">
+        <img src="./avatar.png" alt="" />
+        <h2>Ifeanyi O</h2>
+        <p>Online by Ifeco limited...</p>
+      </div>
+      <div className="info">
+        <div className="option">
+          <div className="title">
+            <span>Chat Settings</span>
+            <img src="./arrowUp.png" alt="" />
+          </div>
         </div>
-    )
-}
-export default Detail
+        <div className="option">
+          <div className="title">
+            <span>Piracy & help</span>
+            <img src="./arrowUp.png" alt="" />
+          </div>
+        </div>
+        <div className="option">
+          <div className="title">
+            <span>Share photos</span>
+            <img src="./arrowDown.png" alt="" />
+          </div>
+          <div className="photos">
+            <div className="photoItem">
+              <div className="photoDetail">
+                <img
+                  src="https://images.pexels.com/photos/1722181/pexels-photo-1722181.jpeg?cs=srgb&dl=pexels-pixabay-1722181.jpg&fm=jpg"
+                  alt="Small House"
+                  className="w-full h-auto"
+                />
+
+                <span>photo_2024.png</span>
+              </div>
+              <img src="./download.png" alt="" className="icon" />
+            </div>
+            <div className="photoItem">
+              <div className="photoDetail">
+                <img
+                  src="https://images.pexels.com/photos/1722181/pexels-photo-1722181.jpeg?cs=srgb&dl=pexels-pixabay-1722181.jpg&fm=jpg"
+                  alt="Small House"
+                  className="w-full h-auto"
+                />
+
+                <span>photo_2024.png</span>
+              </div>
+              <img src="./download.png" alt="" className="icon" />
+            </div>
+            <div className="photoItem">
+              <div className="photoDetail">
+                <img
+                  src="https://images.pexels.com/photos/1722181/pexels-photo-1722181.jpeg?cs=srgb&dl=pexels-pixabay-1722181.jpg&fm=jpg"
+                  alt="Small House"
+                  className="w-full h-auto"
+                />
+
+                <span>photo_2024.png</span>
+              </div>
+              <img src="./download.png" alt="" className="icon" />
+            </div>
+          </div>
+        </div>
+        <div className="option">
+          <div className="title">
+            <span>Shared files</span>
+            <img src="./arrowUp.png" alt="" />
+          </div>
+        </div>
+        <button>Block User</button>
+        <button className="logout">Logout</button>
+      </div>
+    </div>
+  );
+};
+export default Detail;

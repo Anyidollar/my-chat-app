@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import "./chatList.css"
+import AddUser from '../../chat/AddUser';
 
 const ChatList = () => {
   const [addMode, setAddMode]= useState(false)
@@ -10,7 +11,7 @@ const ChatList = () => {
           <img src='/search.png' alt=''/>
           <input type="text" placeholder='Search'/>
         </div>
-        <img src={addMode? "./minus.png":"./plus.png"} alt='' className='add'
+        <img src={addMode ? "./minus.png":"./plus.png"} alt='' className='add'
         onClick={()=>setAddMode(prev=>!prev)}/>
       </div>
       <div className="item">
@@ -34,6 +35,7 @@ const ChatList = () => {
           <h2>Hello</h2>
         </div>
       </div>
+      { addMode && <AddUser />}
     </div>
   )
 }
