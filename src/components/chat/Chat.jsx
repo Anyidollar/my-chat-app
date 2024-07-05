@@ -1,21 +1,63 @@
 import React, { useState, useRef, useEffect } from "react";
 import "./chat.css";
 import EmojiPicker from "emoji-picker-react";
+import {
+  arrayUnion,
+  doc,
+  getDoc,
+  onSnapshot,
+  updateDoc,
+} from "firebase/firestore";
+import { db } from "../../lib/firebase";
+import { useChatStore } from "../../lib/chatStore";
 
 const Chat = () => {
   const [open, setOpen] = useState(false);
+  const [chat, setChat] = useState();
   const [text, setText] = useState("");
+
+  const { chatId } = useChatStore();
+  const { currentUser } = useUserStore();
   const endRef = useRef(null);
 
   useEffect(() => {
     endRef.current.scrollIntoView({ behavior: "smooth" });
   }, []);
 
+  useEffect(() => {
+    const unSub = onSnapshot(doc(db, "chats", chatId), (res) => {
+      setChat(res.data());
+    });
+    return () => unSub();
+  }, [chatId]);
+
   const handleEmoji = (e) => {
     setText((prev) => prev + e.emoji);
     setOpen(false);
   };
-  console.log(text);
+
+  const handleSend = async () => {
+    if (text === "") return;
+
+    try {
+      await updateDoc(doc(db, "chats", chatId), {
+        message: arrayUnion({
+          senderId: currentUser.id,
+          text,
+          createdAt: Date.now(),
+        }),
+      });
+
+      const userChatRef = doc(db, "userChats", currentUser.id);
+      const userChatsSnapshot = await getDoc(userChatRef);
+
+      if (userChatsSnapshot.exists()) {
+        const userChatsData = userChatsSnapshot.data();
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
   return (
     <div className="chat">
       <div className="top">
@@ -33,72 +75,18 @@ const Chat = () => {
         </div>
       </div>
       <div className="center">
-        <div className="message">
-          <img src="./avatar.png" alt="" />
-          <div className="text">
-            <p>
-              Lorem ipsum dolor sit amet consectetur adipisicing elit. Quidem
-              facere minus aliquid animi, quibusdam eaque laborum voluptatibus
-              dolorum ex ipsam consequatur id non saepe, praesentium magnam
-              expedita, tempore natus nulla?
-            </p>
-            <span>1 min ago</span>
-          </div>
-        </div>
-        <div className="message own">
-          <div className="text">
-            <p>
-              Lorem ipsum dolor sit amet consectetur adipisicing elit. Quidem
-              facere minus aliquid animi, quibusdam eaque laborum voluptatibus
-              dolorum ex ipsam consequatur id non saepe, praesentium magnam
-              expedita, tempore natus nulla?
-            </p>
-            <span>1 min ago</span>
-          </div>
-        </div>
-        <div className="message">
-          <img src="./avatar.png" alt="" />
-          <div className="text">
-            <p>
-              Lorem ipsum dolor sit amet consectetur adipisicing elit. Quidem
-              facere minus aliquid animi, quibusdam eaque laborum voluptatibus
-              dolorum ex ipsam consequatur id non saepe, praesentium magnam
-              expedita, tempore natus nulla?
-            </p>
-            <span>1 min ago</span>
-          </div>
-        </div>
-        <div className="message own">
-          <div className="text">
-            <img
-              src="https://images.unsplash.com/photo-1570129477492-45c003edd2be?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwzNjUyOXwwfDF8c2VhcmNofDJ8fGJlYXV0aWZ1bCUyMGhvdXNlfGVufDB8fHx8MTY0MzYwNzA2MQ&ixlib=rb-1.2.1&q=80&w=1080"
-              alt=""
-            />
+        {chat?.messages?.map((message) => {
+          <div className="message own" key={message?.createdAt}>
+            <div className="text">
+              {message.img && <img src={message.img} alt="" />}
+              <p>{message.text}</p>
+              {/* <span>{message.createdAt}</span> */}
+            </div>
+          </div>;
+        })}
 
-            <p>
-              Lorem ipsum dolor sit amet consectetur adipisicing elit. Quidem
-              facere minus aliquid animi, quibusdam eaque laborum voluptatibus
-              dolorum ex ipsam consequatur id non saepe, praesentium magnam
-              expedita, tempore natus nulla?
-            </p>
-            <span>1 min ago</span>
-          </div>
-        </div>
-        <div className="message">
-          <img src="./avatar.png" alt="" />
-          <div className="text">
-            <p>
-              Lorem ipsum dolor sit amet consectetur adipisicing elit. Quidem
-              facere minus aliquid animi, quibusdam eaque laborum voluptatibus
-              dolorum ex ipsam consequatur id non saepe, praesentium magnam
-              expedita, tempore natus nulla?
-            </p>
-            <span>1 min ago</span>
-          </div>
-        </div>
         <div ref={endRef}></div>
       </div>
-
       <div className="bottom">
         <div className="icons">
           <img src="./img.png" alt="" />
@@ -122,7 +110,9 @@ const Chat = () => {
             <EmojiPicker open={open} onEmojiClick={handleEmoji} />
           </div>
         </div>
-        <button className="sendButton">send</button>
+        <button className="sendButton" onClick={handleSend}>
+          send
+        </button>
       </div>
     </div>
   );
