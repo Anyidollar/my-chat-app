@@ -10,6 +10,7 @@ import {
 } from "firebase/firestore";
 import { db } from "../../lib/firebase";
 import { useChatStore } from "../../lib/chatStore";
+import { useUserStore } from "../../lib/userStore";
 
 const Chat = () => {
   const [open, setOpen] = useState(false);
@@ -53,6 +54,12 @@ const Chat = () => {
 
       if (userChatsSnapshot.exists()) {
         const userChatsData = userChatsSnapshot.data();
+
+        const chatIndex = userChatsData.chats.findIndex(
+          (c) => c.chatId === chatId
+        );
+        userChatsData[chatIndex].lastMessage = text;
+        userChatsData[chatIndex].isSeen = true;
       }
     } catch (error) {
       console.log(error);
