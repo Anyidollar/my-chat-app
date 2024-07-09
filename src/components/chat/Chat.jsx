@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useCallback } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import "./chat.css";
 import EmojiPicker from "emoji-picker-react";
 import {
@@ -17,12 +17,18 @@ const Chat = () => {
   const [open, setOpen] = useState(false);
   const [chat, setChat] = useState({ messages: [] });
   const [text, setText] = useState("");
-  const [sending, setSending] = useState(false);
-  const [img, setImg] = useState({ file: null, url: "" });
+  const [img, setImg] = useState({
+    file: null,
+    url: "",
+  });
 
   const { chatId, user } = useChatStore();
   const { currentUser } = useUserStore();
   const endRef = useRef(null);
+
+  useEffect(() => {
+    endRef.current.scrollIntoView({ behavior: "smooth" });
+  }, [chat]);
 
   useEffect(() => {
     const unSub = onSnapshot(doc(db, "chats", chatId), (res) => {
@@ -30,10 +36,6 @@ const Chat = () => {
     });
     return () => unSub();
   }, [chatId]);
-
-  useEffect(() => {
-    endRef.current.scrollIntoView({ behavior: "smooth" });
-  }, [chat]);
 
   const handleEmoji = (e) => {
     setText((prev) => prev + e.emoji);
@@ -49,94 +51,75 @@ const Chat = () => {
     }
   };
 
-  const debounce = (func, wait) => {
-    let timeout;
-    return (...args) => {
-      clearTimeout(timeout);
-      timeout = setTimeout(() => func(...args), wait);
+  const handleSend = async () => {
+    if (text === "") return;
+
+    let imgUrl = null;
+
+    const newMessage = {
+      senderId: currentUser.id,
+      text,
+      createdAt: Date.now(),
+      ...(imgUrl && { img: imgUrl }),
     };
-  };
 
-  const debouncedSend = useCallback(
-    debounce(async (text, img, currentUser, chatId, user, sending) => {
-      if (text === "" || sending) return;
-      setSending(true);
-
-      let imgUrl = null;
+    try {
       if (img.file) {
         imgUrl = await upload(img.file);
+        newMessage.img = imgUrl;
       }
 
-      const newMessage = {
-        id: `${Date.now()}-${currentUser.id}`,
-        senderId: currentUser.id,
-        text,
-        createdAt: Date.now(),
-        ...(imgUrl && { img: imgUrl }),
-      };
+      await updateDoc(doc(db, "chats", chatId), {
+        messages: arrayUnion(newMessage),
+      });
 
-      try {
-        await updateDoc(doc(db, "chats", chatId), {
-          messages: arrayUnion(newMessage),
-        });
+      const userIDs = [currentUser.id, user.id];
+      userIDs.forEach(async (id) => {
+        const userChatRef = doc(db, "userchats", id);
+        const userChatsSnapshot = await getDoc(userChatRef);
 
-        const userIDs = [currentUser.id, user.id];
-        userIDs.forEach(async (id) => {
-          const userChatRef = doc(db, "userchats", id);
-          const userChatsSnapshot = await getDoc(userChatRef);
+        if (userChatsSnapshot.exists()) {
+          const userChatsData = userChatsSnapshot.data();
 
-          if (userChatsSnapshot.exists()) {
-            const userChatsData = userChatsSnapshot.data();
-            const chatIndex = userChatsData.chats.findIndex(
-              (c) => c.chatId === chatId
-            );
-            if (chatIndex !== -1) {
-              userChatsData.chats[chatIndex].lastMessage = text;
-              userChatsData.chats[chatIndex].isSeen =
-                id === currentUser.id ? true : false;
-              userChatsData.chats[chatIndex].updatedAt = Date.now();
-
-              await updateDoc(userChatRef, {
-                chats: userChatsData.chats,
-              });
-            }
-          }
-        });
-
-        setChat((prevChat) => {
-          const messageExists = prevChat.messages.some(
-            (message) => message.id === newMessage.id
+          const chatIndex = userChatsData.chats.findIndex(
+            (c) => c.chatId === chatId
           );
-          if (!messageExists) {
-            return {
-              ...prevChat,
-              messages: [...prevChat.messages, newMessage],
-            };
-          }
-          return prevChat;
-        });
 
-        setText("");
-        setImg({ file: null, url: "" });
-      } catch (error) {
-        console.log(error);
-      } finally {
-        setSending(false);
-      }
-    }, 500),
-    []
-  );
+          userChatsData.chats[chatIndex].lastMessage = text;
+          userChatsData.chats[chatIndex].isSeen =
+            id === currentUser.id ? true : false;
+          userChatsData.chats[chatIndex].updatedAt = Date.now();
 
-  const handleSend = useCallback(() => {
-    debouncedSend(text, img, currentUser, chatId, user, sending);
-  }, [text, img, currentUser, chatId, user, sending]);
+          await updateDoc(userChatRef, {
+            chats: userChatsData.chats,
+          });
+        }
+      });
+
+      // Update the chat state to include the new message
+      // setChat((prevChat) => ({
+      //   ...prevChat,
+      //   messages: [...prevChat.messages, newMessage],
+      // }));
+
+      // setText(""); // Clear the input field
+    } catch (error) {
+      console.log(error);
+    }
+    setImg({
+      file: null,
+      url: "",
+    
+    })
+    setText("")
+  };
 
   return (
     <div className="chat">
       <div className="top">
         <div className="user">
           <img src="./avatar.png" alt="" />
-          <div className="text">
+          <div className="texts">
             <span>Ifeanyi</span>
             <p>Online by Ifeco limited...</p>
           </div>
@@ -149,27 +132,20 @@ const Chat = () => {
       </div>
       <div className="center">
         {chat?.messages?.map((message) => (
-          <div
-            className={
-              message.senderId === currentUser.id ? "message own" : "message"
-            }
-            key={message?.id || message?.createdAt}
-          >
-            <div className="text">
+          <div className="message own" key={message?.createdAt}>
+            <div className="texts">
               {message.img && <img src={message.img} alt="" />}
               <p>{message.text}</p>
+              {/* <span>{message}</span> */}
             </div>
           </div>
         ))}
 
-        {img.url && (
-          <div className="message own">
-            <div className="text">
-              {img.url && <img src={img.url} alt="" />}
-            </div>
+       {img.url && <div className="message own">
+          <div className="texts">
+             <img src={img.url} alt="" />
           </div>
-        )}
-
+        </div>}
         <div ref={endRef}></div>
       </div>
       <div className="bottom">
@@ -202,7 +178,7 @@ const Chat = () => {
             <EmojiPicker open={open} onEmojiClick={handleEmoji} />
           </div>
         </div>
-        <button className="sendButton" onClick={handleSend} disabled={sending}>
+        <button className="sendButton" onClick={handleSend}>
           send
         </button>
       </div>
