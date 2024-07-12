@@ -95,23 +95,14 @@ const Chat = () => {
           });
         }
       });
-
-      // Update the chat state to include the new message
-      // setChat((prevChat) => ({
-      //   ...prevChat,
-      //   messages: [...prevChat.messages, newMessage],
-      // }));
-
-      // setText(""); // Clear the input field
     } catch (error) {
       console.log(error);
     }
     setImg({
       file: null,
       url: "",
-    
-    })
-    setText("")
+    });
+    setText("");
   };
 
   return (
@@ -132,7 +123,12 @@ const Chat = () => {
       </div>
       <div className="center">
         {chat?.messages?.map((message) => (
-          <div className="message own" key={message?.createdAt}>
+          <div
+            className={
+              message.senderId === currentUser.id ? "message own" : "message"
+            }
+            key={message?.creatAt}
+          >
             <div className="texts">
               {message.img && <img src={message.img} alt="" />}
               <p>{message.text}</p>
@@ -141,11 +137,13 @@ const Chat = () => {
           </div>
         ))}
 
-       {img.url && <div className="message own">
-          <div className="texts">
-             <img src={img.url} alt="" />
+        {img.url && (
+          <div className="message own">
+            <div className="texts">
+              <img src={img.url} alt="" />
+            </div>
           </div>
-        </div>}
+        )}
         <div ref={endRef}></div>
       </div>
       <div className="bottom">
